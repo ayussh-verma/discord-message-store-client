@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "discord-message-store-client"
+version = "0.0.1"
+description = "A Python client which passes on user information to the Discord Message Store server."
+authors = ["Ayussh Verma <ayussh.verma@maersk.com>"]
+license="MIT"
+repository = "https://github.com/ayussh-verma/discord-message-store-client"
+packages = [{include = "client"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiohttp = "^3.10.5"
+discord-py = "^2.4.0"
+loguru = "^0.7.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
