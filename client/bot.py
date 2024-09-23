@@ -48,7 +48,9 @@ class Bot(commands.Bot):
         logger.info("All extensions loaded")
 
 
-_intents = discord.Intents()
+_intents = discord.Intents(
+    members=True,
+)
 _activity = discord.Activity(type=discord.ActivityType.watching, name="out for user updates!")
 _allowed_mentions = discord.AllowedMentions(everyone=False, roles=False, users=True)
 
