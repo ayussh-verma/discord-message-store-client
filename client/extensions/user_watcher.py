@@ -80,18 +80,17 @@ class MemberWatcher(commands.Cog):
 
         self.bot.http_session.post(url, json=request_body, raise_for_status=True)
 
-    async def cog_load(self) -> None:
-        stored_user_data_response = await self.bot.http_session.get(f"{Config.API_BASE_URL}/users")
-        stored_user_data = await stored_user_data_response.json()
+    @commands.Cog.listener()
+    async def on_guild_available(self, guild: discord.Guild) -> None:
+        if guild.id != Config.BOT_GUILD_ID:
+            logger.info(f"Guild {guild.name} is not the target guild, discarding event.")
+            return
 
-        for user in stored_user_data:
-            await self.bot.http_session.put(
-                f"{Config.API_BASE_URL}/users/{user['id']}", json=user | {"inGuild": False}, raise_for_status=True
-            )
+        logger.info("Beginning member sync.")
 
-        fresh_guild = await self.bot.fetch_guild(Config.BOT_GUILD_ID, with_counts=False)
-        for member in fresh_guild.members:
-            member_data = {
+        for member in guild.members:
+            url = f"{Config.API_BASE_URL}/users/{member.id}"
+            request_body = {
                 "name": member.name,
                 "avatarHash": getattr(member.avatar, "key", None),
                 "guildAvatarHash": getattr(member.guild_avatar, "key", None),
@@ -101,15 +100,26 @@ class MemberWatcher(commands.Cog):
                 "inGuild": True,
             }
 
-            put_response = await self.bot.http_session.put(f"{Config.API_BASE_URL}/users/{member.id}", json=member_data)
-            if put_response.status not in (200, 404):
-                raise RuntimeError(f"Failed to update user {member.id}")
-            if put_response.status == 200:
-                return
+            response = await self.bot.http_session.get(url, raise_for_status=True)
 
-            await self.bot.http_session.post(f"{Config.API_BASE_URL}/users", json=member_data, raise_for_status=True)
+            if response.status == 200:
+                await self.bot.http_session.put(url, json=request_body, raise_for_status=True)
+                continue
+
+            self.bot.http_session.post(url, json=request_body, raise_for_status=True)
 
         self.sync_completed.set()
+
+    async def cog_load(self) -> None:
+        logger.info("Marking all members as having left the guild (inGuild=false)")
+
+        stored_user_data_response = await self.bot.http_session.get(f"{Config.API_BASE_URL}/users")
+        stored_user_data = await stored_user_data_response.json()
+
+        for user in stored_user_data:
+            await self.bot.http_session.put(
+                f"{Config.API_BASE_URL}/users/{user['id']}", json=user | {"inGuild": False}, raise_for_status=True
+            )
 
     def cog_unload(self) -> None:
         self.sync_completed.clear()
