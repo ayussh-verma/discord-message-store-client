@@ -1,0 +1,7 @@
+# Exclude everything
+*
+
+# Except for these
+!client
+!pyproject.toml
+!poetry.lock
