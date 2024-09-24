@@ -17,7 +17,7 @@ jobs:
   get-sha-tag:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ vars.SHORT_TIMEOUT }}
+    timeout-minutes: ${{ fromJSON(vars.SHORT_TIMEOUT) }}
     outputs:
       tag: ${{ steps.sha-tag.outputs.tag }}
     steps:
