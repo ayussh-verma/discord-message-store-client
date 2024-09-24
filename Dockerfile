@@ -9,7 +9,7 @@ RUN groupadd --gid 1300 disc-msg-store \
 WORKDIR /client
 COPY pyproject.toml poetry.lock ./
 # TODO: Exclude development dependencies
-RUN --mount=type=cache,target=${POETRY_CACHE_DIR} poetry install --no-root
+RUN --mount=type=cache,target=${POETRY_CACHE_DIR} poetry install --no-root --only main
 RUN poetry install --no-root
 
 COPY ./ ./
