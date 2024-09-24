@@ -1,5 +1,6 @@
-import discord
 import asyncio
+
+import discord
 from discord.ext import commands
 from loguru import logger
 
@@ -121,7 +122,9 @@ class MemberWatcher(commands.Cog):
             request_data.pop("id")
 
             await self.bot.http_session.put(
-                f"{Config.API_BASE_URL}/users/{user['id']}", json=request_data, raise_for_status=True
+                f"{Config.API_BASE_URL}/users/{user['id']}",
+                json=request_data,
+                raise_for_status=True,
             )
 
         logger.success("All members have been marked as having left the guild.")

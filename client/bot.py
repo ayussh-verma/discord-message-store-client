@@ -3,10 +3,9 @@ import typing as t
 import aiohttp
 import discord
 from discord.ext import commands
+from loguru import logger
 
 from client.config import Config
-
-from loguru import logger
 
 EXTENSIONS = ["client.extensions." + ext for ext in ["user_watcher"]]
 
@@ -30,7 +29,7 @@ class Bot(commands.Bot):
         await self.unload_all_extensions()
 
         await super().close()
-        await self.http_session.close()  # type: ignore
+        await self.http_session.close()
         await logger.complete()
 
     async def unload_all_extensions(self) -> None:
