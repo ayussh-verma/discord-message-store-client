@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  workflow_call
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ vars.MODERATE_TIMEOUT }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the Python Environment
+        uses: Qwerty-133/python-setup@v1
+        with:
+          python-version: '3.12'
+
+      - name: Run Pre-commit Hooks (-ruff)
+        run: >
+          SKIP=ruff
+          poetry run
+          pre-commit run --show-diff-on-failure --color=always --all-files
+
+      - name: Run Ruff
+        run: poetry run ruff check --output-format=github .

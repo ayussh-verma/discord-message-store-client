@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml
+
+  get-sha-tag:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ vars.SHORT_TIMEOUT }}
+    outputs:
+      tag: ${{ steps.sha-tag.outputs.tag }}
+    steps:
+      - name: Get the short SHA tag
+        id: sha-tag
+        run: |
+          tag=$(cut -c 1-7 <<< $GITHUB_SHA)
+          echo "sha-tag=$tag" >> $GITHUB_OUTPUT
+
+  build:
+    uses: ./.github/workflows/build.yaml
+    needs:
+      - lint
+      - get-sha-tag
+    with:
+      tag: ${{ needs.get-sha-tag.outputs.tag }}
+    secrets: inherit
