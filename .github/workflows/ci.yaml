@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJSON(vars.SHORT_TIMEOUT) }}
     outputs:
-      tag: ${{ steps.sha-tag.outputs.tag }}
+      tag: ${{ steps.sha-tag.outputs.sha-tag }}
     steps:
       - name: Get the short SHA tag
         id: sha-tag
